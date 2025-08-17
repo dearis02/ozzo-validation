@@ -1,4 +1,4 @@
-module github.com/dearis02/ozzo-validation
+module github.com/dearis02/ozzo-validation/v4
 
 go 1.13
 

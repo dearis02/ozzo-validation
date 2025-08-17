@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/dearis02/ozzo-validation"
+	validation "github.com/dearis02/ozzo-validation/v4"
 	"github.com/stretchr/testify/assert"
 )
 
