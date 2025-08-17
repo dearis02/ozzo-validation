@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,6 +17,8 @@ func TestMin(t *testing.T) {
 	date20000101 := time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 	date20001201 := time.Date(2000, 12, 1, 0, 0, 0, 0, time.UTC)
 	date20000601 := time.Date(2000, 6, 1, 0, 0, 0, 0, time.UTC)
+
+	decimalTwo := decimal.NewFromInt(2)
 
 	tests := []struct {
 		tag       string
@@ -52,9 +55,16 @@ func TestMin(t *testing.T) {
 		{"t4.3", date20000601, false, date20000101, "must be no less than 2000-06-01 00:00:00 +0000 UTC"},
 		{"t4.4", date20000601, false, date0, ""},
 		{"t4.5", date20000601, true, date20000601, "must be greater than 2000-06-01 00:00:00 +0000 UTC"},
-		{"t4.6", date20000601, true, 1, "cannot convert int to time.Time"},
-		{"t4.7", struct{}{}, false, 1, "type not supported: struct {}"},
+		{"t4.6", date20000601, true, 1, "unsupported type: int"},
+		{"t4.7", struct{}{}, false, 1, "unsupported type: int"},
 		{"t4.8", date0, false, date20000601, ""},
+
+		// decimal.Decimal cases
+		{"t5.1", decimalTwo, false, decimalTwo, ""},
+		{"t5.2", decimalTwo, false, decimal.NewFromInt(1), "must be no less than 2"},
+		{"t5.3", decimalTwo, false, decimal.NewFromInt(2), ""},
+		{"t5.4", decimalTwo, true, decimalTwo, "must be greater than 2"},
+		{"t5.5", decimalTwo, false, "1", "unsupported type: string"},
 	}
 
 	for _, test := range tests {
@@ -80,6 +90,8 @@ func TestMax(t *testing.T) {
 	date20000101 := time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 	date20001201 := time.Date(2000, 12, 1, 0, 0, 0, 0, time.UTC)
 	date20000601 := time.Date(2000, 6, 1, 0, 0, 0, 0, time.UTC)
+
+	decimalTwo := decimal.NewFromInt(2)
 
 	tests := []struct {
 		tag       string
@@ -116,7 +128,13 @@ func TestMax(t *testing.T) {
 		{"t4.3", date20000601, false, date20001201, "must be no greater than 2000-06-01 00:00:00 +0000 UTC"},
 		{"t4.4", date20000601, false, date0, ""},
 		{"t4.5", date20000601, true, date20000601, "must be less than 2000-06-01 00:00:00 +0000 UTC"},
-		{"t4.6", date20000601, true, 1, "cannot convert int to time.Time"},
+		{"t4.6", date20000601, true, 1, "unsupported type: int"},
+
+		// decimal.Decimal cases
+		{"t5.1", decimalTwo, false, decimalTwo, ""},
+		{"t5.2", decimalTwo, false, decimal.NewFromInt(3), "must be no greater than 2"},
+		{"t5.4", decimalTwo, true, decimalTwo, "must be less than 2"},
+		{"t5.5", decimalTwo, false, "1", "unsupported type: string"},
 	}
 
 	for _, test := range tests {

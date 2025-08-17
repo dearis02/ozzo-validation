@@ -10,6 +10,9 @@ import (
 	"fmt"
 	"reflect"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 var (
@@ -98,6 +101,16 @@ func ToFloat(value interface{}) (float64, error) {
 // - interface, pointer: nil or the referenced value is empty
 func IsEmpty(value interface{}) bool {
 	v := reflect.ValueOf(value)
+
+	vUUID, ok := value.(uuid.UUID)
+	if ok {
+		return vUUID == uuid.Nil
+	}
+
+	if decimalVal, ok := value.(decimal.Decimal); ok {
+		return decimalVal.IsZero()
+	}
+
 	switch v.Kind() {
 	case reflect.String, reflect.Array, reflect.Map, reflect.Slice:
 		return v.Len() == 0
@@ -146,6 +159,14 @@ func Indirect(value interface{}) (interface{}, bool) {
 		if rv.IsNil() {
 			return nil, true
 		}
+	}
+
+	if uuidVal, ok := value.(uuid.UUID); ok {
+		return uuidVal, false
+	}
+
+	if decimalVal, ok := value.(decimal.Decimal); ok {
+		return decimalVal, false
 	}
 
 	if rv.Type().Implements(valuerType) {

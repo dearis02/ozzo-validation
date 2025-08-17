@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,6 +28,8 @@ func TestRequired(t *testing.T) {
 		{"t4", &s2, "cannot be blank"},
 		{"t5", nil, "cannot be blank"},
 		{"t6", time1, "cannot be blank"},
+		{"t7", uuid.Nil, "cannot be blank"},
+		{"t8", decimal.Zero, "cannot be blank"},
 	}
 
 	for _, test := range tests {
