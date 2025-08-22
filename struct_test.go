@@ -19,10 +19,11 @@ type Struct1 struct {
 	Field4 [4]int
 	field5 int
 	Struct2
-	S1               *Struct2
-	S2               Struct2
-	JSONField        int `json:"some_json_field"`
-	JSONIgnoredField int `json:"-"`
+	S1                *Struct2
+	S2                Struct2
+	JSONField         int `json:"some_json_field"`
+	JSONIgnoredField  int `json:"-"`
+	CustomErrTagField int `header:"custom_header"`
 }
 
 type Struct2 struct {
@@ -196,13 +197,17 @@ func Test_getErrorFieldName(t *testing.T) {
 
 	sf1 := findStructField(v1, reflect.ValueOf(&s1.Field1))
 	assert.NotNil(t, sf1)
-	assert.Equal(t, "Field1", getErrorFieldName(sf1))
+	assert.Equal(t, "Field1", getErrorFieldName(sf1, ErrorTag))
 
 	jsonField := findStructField(v1, reflect.ValueOf(&s1.JSONField))
 	assert.NotNil(t, jsonField)
-	assert.Equal(t, "some_json_field", getErrorFieldName(jsonField))
+	assert.Equal(t, "some_json_field", getErrorFieldName(jsonField, ErrorTag))
 
 	jsonIgnoredField := findStructField(v1, reflect.ValueOf(&s1.JSONIgnoredField))
 	assert.NotNil(t, jsonIgnoredField)
-	assert.Equal(t, "JSONIgnoredField", getErrorFieldName(jsonIgnoredField))
+	assert.Equal(t, "JSONIgnoredField", getErrorFieldName(jsonIgnoredField, ErrorTag))
+
+	customErrTagField := findStructField(v1, reflect.ValueOf(&s1.CustomErrTagField))
+	assert.NotNil(t, customErrTagField)
+	assert.Equal(t, "custom_header", getErrorFieldName(customErrTagField, "header"))
 }
