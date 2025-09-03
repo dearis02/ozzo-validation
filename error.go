@@ -178,3 +178,43 @@ func NewError(code, message string) Error {
 
 // Assert that our ErrorObject implements the Error interface.
 var _ Error = ErrorObject{}
+
+// PrettyFormat formats the error messages to pretty json string format
+func (e Errors) PrettyFormat() map[string]any {
+	result := map[string]any{}
+
+	for key, e := range e {
+		if e == nil {
+			continue
+		}
+
+		if nested, ok := e.(Errors); ok {
+			result[key] = nested.PrettyFormat()
+			continue
+		}
+
+		msg := e.Error()
+
+		parts := strings.Split(msg, ";")
+		if len(parts) > 1 {
+			fieldErrs := map[string]string{}
+			for _, p := range parts {
+				p = strings.TrimSpace(p)
+				if p == "" {
+					continue
+				}
+				kv := strings.SplitN(p, ":", 2)
+				if len(kv) == 2 {
+					fieldErrs[strings.TrimSpace(kv[0])] = strings.TrimSpace(kv[1])
+				} else {
+					fieldErrs[p] = "invalid"
+				}
+			}
+			result[key] = fieldErrs
+		} else {
+			result[key] = msg
+		}
+	}
+
+	return result
+}
